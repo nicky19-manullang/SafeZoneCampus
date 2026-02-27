@@ -22,6 +22,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Create reports table
+-- NOTE: the running server builds the table differently (id VARCHAR(20) to
+-- accommodate the RPT-xxxx identifiers). Keep this script for manual
+-- setup or reference; the code uses its own migration logic.
 CREATE TABLE IF NOT EXISTS reports (
   id INT AUTO_INCREMENT PRIMARY KEY,
   student_id INT,

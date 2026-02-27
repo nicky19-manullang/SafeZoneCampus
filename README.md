@@ -203,6 +203,13 @@ POST /api/auth/change-password
 ```
 
 ### Reports
+
+> **Persistence note:** the server’s initialization routine previously
+> deleted all entries from the `reports` table every time it started, which
+> meant reports would vanish after a restart. That behaviour has been
+> disabled by default. If you need to reset the table for testing set the
+> `RESET_REPORTS=true` environment variable before launching the backend.
+
 ```
 GET  /api/reports             # Get all reports (admin)
 GET  /api/reports/my-reports  # Get student's own reports

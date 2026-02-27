@@ -106,9 +106,19 @@ export const initDatabase = async () => {
     
     console.log('✅ Default admin user created');
 
-    // Clear all reports data (keep only structure)
-    await connection.query('DELETE FROM reports');
-    console.log('✅ Reports data cleared (dummy data removed)');
+    // NOTE: earlier versions of the application automatically wiped the
+    // reports table every time the server started. This was convenient for
+    // development/demo purposes, but it meant that data would never persist
+    // across restarts – exactly the behaviour you observed.  In production we
+    // want to keep the reports around, so the deletion has been removed.
+    //
+    // If you *do* need to reset the table (e.g. when running tests), you can
+    // call `clearReportsData()` manually or enable the `RESET_REPORTS`
+    // environment variable.
+    if (process.env.RESET_REPORTS === 'true') {
+      await connection.query('DELETE FROM reports');
+      console.log('✅ Reports data cleared (RESET_REPORTS=true)');
+    }
 
     connection.release();
     console.log('✅ Database initialization complete');
