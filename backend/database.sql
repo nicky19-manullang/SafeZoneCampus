@@ -21,10 +21,6 @@ CREATE TABLE IF NOT EXISTS users (
   INDEX idx_status (status)
 );
 
--- Create reports table
--- NOTE: the running server builds the table differently (id VARCHAR(20) to
--- accommodate the RPT-xxxx identifiers). Keep this script for manual
--- setup or reference; the code uses its own migration logic.
 CREATE TABLE IF NOT EXISTS reports (
   id INT AUTO_INCREMENT PRIMARY KEY,
   student_id INT,
@@ -66,19 +62,8 @@ CREATE TABLE IF NOT EXISTS notifications (
   INDEX idx_created_at (created_at)
 );
 
--- Insert default admin (password: admin123 - will be hashed by the server)
--- Note: The password will be hashed automatically when the server first runs
--- For now, insert the admin with a placeholder that will be updated
 INSERT INTO users (nim, password, name, role, faculty, status) 
-VALUES ('admin001', '$2a$10$placeholder', 'Dr. HJ. Dewi Sartika, M.Si', 'admin', 'fk', 'approved')
+VALUES ('admin001', '$2a$10$placeholder', 'Siapaaja', 'admin', 'TRPL', 'approved')
 ON DUPLICATE KEY UPDATE name = name;
 
--- Note: Run the server once to hash the admin password properly
--- Or you can use the API endpoint to create admin users
-
--- Reset AUTO_INCREMENT for reports table to start from 1
--- Option 1: If you want to keep existing data but start new reports from ID 1:
 ALTER TABLE reports AUTO_INCREMENT = 1;
-
--- Option 2: If you want to delete all existing reports and start fresh from ID 1:
--- TRUNCATE TABLE reports;

@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { UserRoles } from '../../types';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import logo from "../../assets/logo.png";
 
 const schema = yup.object({
   nim: yup.string().required('NIM wajib diisi'),
@@ -57,7 +58,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-800 p-12 flex-col justify-between relative overflow-hidden">
+       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-800 p-12 flex-col justify-between relative overflow-hidden">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl" />
@@ -66,8 +67,8 @@ const Login = () => {
 
         <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
-              <Shield className="w-8 h-8 text-white" />
+            <div className="w-14 h-14 bg-gradient-to-br from-white/30 to-white/30 rounded-2xl flex items-center justify-center shadow-2xl">
+               <img src={logo} alt="Logo" className="w-9 h-9 object-contain drop-shadow-md"/>
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">SafeZone</h1>
