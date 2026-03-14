@@ -4,7 +4,43 @@ import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import { authenticateToken } from '../middleware/auth.js';
 
-const router = express.Router();
+// Seed database (for deployment)
+router.post('/seed', async (req, res) => {
+  try {
+    const bcrypt = await import('bcryptjs');
+    
+    // Create admin user
+    const adminPassword = await bcrypt.default.hash('admin123', 10);
+    await pool.query(`
+      INSERT IGNORE INTO users (nim, password, name, role, faculty, status)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `, ['admin001', adminPassword, 'Dr. HJ. Dewi Sartika, M.Si', 'admin', 'fit', 'approved']);
+    
+    res.json({ message: 'Database seeded successfully' });
+  } catch (error) {
+    console.error('Seed error:', error);
+    res.status(500).json({ message: 'Failed to seed database', error: error.message });
+  }
+});
+
+// Reset admin password (temporary endpoint for deployment)
+router.post('/reset-admin', async (req, res) => {
+  try {
+    const bcrypt = await import('bcryptjs');
+    const adminPassword = await bcrypt.default.hash('admin123', 10);
+    
+    await pool.query(`
+      UPDATE users 
+      SET password = ? 
+      WHERE nim = 'admin001' AND role = 'admin'
+    `, [adminPassword]);
+    
+    res.json({ message: 'Admin password reset to admin123' });
+  } catch (error) {
+    console.error('Reset admin error:', error);
+    res.status(500).json({ message: 'Failed to reset admin password', error: error.message });
+  }
+});
 
 // Login
 router.post('/login', async (req, res) => {
