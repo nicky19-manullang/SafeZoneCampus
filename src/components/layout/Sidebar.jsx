@@ -64,7 +64,7 @@ const Sidebar = ({ isOpen, onClose, isAdmin }) => {
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-xl flex items-center justify-center">
-              <img src={logo} alt="Logo" className="w-8 h-8 object-contain drop-shadow-md"/>
+              <img src={logo} alt="Logo" className="w-10 h-20 object-contain drop-shadow-md"/>
             </div>
             <div>
               <h1 className="font-bold text-slate-900">SafeZone</h1>

@@ -68,7 +68,7 @@ const Login = () => {
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 bg-gradient-to-br from-white/30 to-white/30 rounded-2xl flex items-center justify-center shadow-2xl">
-               <img src={logo} alt="Logo" className="w-9 h-9 object-contain drop-shadow-md"/>
+               <img src={logo} alt="Logo" className="w-14 h-20 object-contain drop-shadow-md"/>
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">SafeZone</h1>
