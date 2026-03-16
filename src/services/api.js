@@ -4,6 +4,8 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 console.log("SAFEZONE API URL:", API_URL);
+console.log("ENV:", import.meta.env);
+console.log("SAFEZONE API URL:", API_URL);
 
 // Create axios instance
 const api = axios.create({
