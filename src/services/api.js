@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API URL (gunakan env dari Vercel, jika tidak ada pakai backend production)
-const API_URL = import.meta.env.VITE_API_URL || "https://safezone-api.onrender.com/api";
+// API URL (gunakan env dari Vercel; default ke relative /api agar bekerja di Vercel dan saat dev dengan proxy)
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 console.log("SAFEZONE API URL:", API_URL);
 
