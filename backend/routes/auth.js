@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import { authenticateToken } from '../middleware/auth.js';
 
+const router = express.Router();
+
 // Seed database (for deployment)
 router.post('/seed', async (req, res) => {
   try {
