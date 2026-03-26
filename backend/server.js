@@ -13,12 +13,31 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+const parseCorsOrigins = (value) =>
+  value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+const defaultProdOrigins = [
+  'https://safezone-campus.vercel.app',
+  'https://your-vercel-domain.vercel.app'
+];
+
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? parseCorsOrigins(process.env.CORS_ORIGINS)
+  : NODE_ENV === 'production'
+    ? defaultProdOrigins
+    : ['http://localhost:5173'];
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://safezone-campus.vercel.app', 'https://your-vercel-domain.vercel.app'] 
-    : 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    return callback(null, allowedOrigins.includes(origin));
+  },
   credentials: true
 }));
 app.use(express.json());

@@ -5,14 +5,32 @@ import pool from '../db.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const BOOTSTRAP_TOKEN = process.env.BOOTSTRAP_TOKEN;
+
+const requireBootstrapToken = (req, res) => {
+  if (NODE_ENV !== 'production') return true;
+  if (!BOOTSTRAP_TOKEN) return res.status(404).json({ message: 'Route not found' });
+  const provided = req.get('x-bootstrap-token');
+  if (!provided || provided !== BOOTSTRAP_TOKEN) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return false;
+  }
+  return true;
+};
 
 // Seed database (for deployment)
 router.post('/seed', async (req, res) => {
   try {
+    if (!requireBootstrapToken(req, res)) return;
     const bcrypt = await import('bcryptjs');
     
     // Create admin user
-    const adminPassword = await bcrypt.default.hash('admin123', 10);
+    const adminPasswordPlain = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+    if (NODE_ENV === 'production' && adminPasswordPlain === 'admin123') {
+      return res.status(400).json({ message: 'DEFAULT_ADMIN_PASSWORD wajib diset di production' });
+    }
+    const adminPassword = await bcrypt.default.hash(adminPasswordPlain, 10);
     await pool.query(`
       INSERT IGNORE INTO users (nim, password, name, role, faculty, status)
       VALUES (?, ?, ?, ?, ?, ?)
@@ -28,8 +46,13 @@ router.post('/seed', async (req, res) => {
 // Reset admin password (temporary endpoint for deployment)
 router.post('/reset-admin', async (req, res) => {
   try {
+    if (!requireBootstrapToken(req, res)) return;
     const bcrypt = await import('bcryptjs');
-    const adminPassword = await bcrypt.default.hash('admin123', 10);
+    const adminPasswordPlain = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+    if (NODE_ENV === 'production' && adminPasswordPlain === 'admin123') {
+      return res.status(400).json({ message: 'DEFAULT_ADMIN_PASSWORD wajib diset di production' });
+    }
+    const adminPassword = await bcrypt.default.hash(adminPasswordPlain, 10);
     
     await pool.query(`
       UPDATE users 
@@ -37,7 +60,7 @@ router.post('/reset-admin', async (req, res) => {
       WHERE nim = 'admin001' AND role = 'admin'
     `, [adminPassword]);
     
-    res.json({ message: 'Admin password reset to admin123' });
+    res.json({ message: 'Admin password reset' });
   } catch (error) {
     console.error('Reset admin error:', error);
     res.status(500).json({ message: 'Failed to reset admin password', error: error.message });
