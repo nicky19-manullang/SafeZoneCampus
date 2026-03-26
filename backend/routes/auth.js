@@ -101,6 +101,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate JWT token - ensure id is a number
+    const secret = process.env.JWT_SECRET || 'fallback_secret_for_development_only';
     const token = jwt.sign(
       {
         id: Number(user.id),
@@ -110,7 +111,7 @@ router.post('/login', async (req, res) => {
         faculty: user.faculty,
         status: user.status
       },
-      process.env.JWT_SECRET,
+      secret,
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
 
@@ -127,7 +128,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Terjadi kesalahan pada server (Database/Koneksi).', error: error.message });
   }
 });
 

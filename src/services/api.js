@@ -1,11 +1,17 @@
 import axios from 'axios';
 
-// API URL (gunakan env dari Vercel; default ke relative /api agar bekerja di Vercel dan saat dev dengan proxy)
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+const DEFAULT_API_URL = import.meta.env.DEV
+  ? "/api"
+  : "https://backend-safezonecampus-production.up.railway.app/api";
 
-console.log("SAFEZONE API URL:", API_URL);
-console.log("ENV:", import.meta.env);
-console.log("SAFEZONE API URL:", API_URL);
+const normalizeApiUrl = (url) => {
+  const trimmed = String(url || "").trim().replace(/\/$/, "");
+  if (!trimmed) return "";
+  if (/^https?:\/\/[^/]+$/i.test(trimmed)) return `${trimmed}/api`;
+  return trimmed;
+};
+
+const API_URL = normalizeApiUrl(import.meta.env.VITE_API_URL) || DEFAULT_API_URL;
 
 // Create axios instance
 const api = axios.create({

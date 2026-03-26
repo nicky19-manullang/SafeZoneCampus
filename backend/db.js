@@ -178,9 +178,8 @@ const pool = connectionString
       queueLimit: 0,
       enableKeepAlive: true,
       keepAliveInitialDelay: 0,
-      ssl: {
-        rejectUnauthorized: false
-      }
+      // Railway MySQL biasanya tidak wajib SSL. Jika error SSL, bisa dihapus atau disesuaikan.
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
     })
   : mysql.createPool({
       host: process.env.DB_HOST || 'localhost',
@@ -195,6 +194,11 @@ const pool = connectionString
       keepAliveInitialDelay: 0,
       ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
     });
+
+// Tangani error tidak terduga pada pool koneksi untuk mencegah aplikasi crash (ECONNRESET dsb)
+pool.on('error', (err) => {
+  console.error('❌ Unexpected MySQL Pool Error:', err);
+});
 
 // test koneksi database
 export const testConnection = async () => {
