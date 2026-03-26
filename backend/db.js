@@ -152,23 +152,49 @@
 // export default pool;
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
+import { URL } from "node:url";
 
 dotenv.config();
 
 // Railway biasanya menggunakan DATABASE_URL
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL;
+
+if (connectionString) {
+  try {
+    const parsed = new URL(connectionString);
+    if (!parsed.hostname) throw new Error("Missing hostname");
+  } catch {
+    console.error("❌ Invalid DATABASE_URL format. Falling back to DB_HOST/DB_PORT.");
+    connectionString = undefined;
+  }
+}
 
 // create connection pool
-const pool = mysql.createPool(connectionString, {
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+const pool = connectionString
+  ? mysql.createPool({
+      uri: connectionString,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    })
+  : mysql.createPool({
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT) || 3306,
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'safezone_campus',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+    });
 
 // test koneksi database
 export const testConnection = async () => {
@@ -176,8 +202,10 @@ export const testConnection = async () => {
     const connection = await pool.getConnection();
     console.log("✅ Database Railway connected");
     connection.release();
+    return true;
   } catch (error) {
     console.error("❌ Database connection failed:", error.message);
+    return false;
   }
 };
 
@@ -212,6 +240,8 @@ export const initDatabase = async () => {
         case_type ENUM('fisik','verbal','siber','sosial','lain') NOT NULL,
         incident_date DATE,
         location VARCHAR(255) NOT NULL,
+        lat DECIMAL(10, 8),
+        lng DECIMAL(11, 8),
         description TEXT NOT NULL,
         evidence VARCHAR(500),
         status ENUM('baru','diproses','selesai') DEFAULT 'baru',

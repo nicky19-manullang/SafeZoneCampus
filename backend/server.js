@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { testConnection, initDatabase } from './db.js';
+import { URL } from 'node:url';
+import { testConnection } from './db.js';
+import { bootstrapDatabase } from './dbBootstrap.js';
 import authRoutes from './routes/auth.js';
 import reportRoutes from './routes/reports.js';
 import adminRoutes from './routes/admin.js';
@@ -51,11 +53,26 @@ const startServer = async () => {
     const dbConnected = await testConnection();
     
     if (!dbConnected) {
-      console.error('Failed to connect to database. Make sure MySQL is running on port 3307');
+      const host = process.env.DB_HOST || 'localhost';
+      const port = process.env.DB_PORT || '3306';
+      const dbName = process.env.DB_NAME || 'safezone_campus';
+      const usingUrl = (() => {
+        if (!process.env.DATABASE_URL) return false;
+        try {
+          const parsed = new URL(process.env.DATABASE_URL);
+          return Boolean(parsed.hostname);
+        } catch {
+          return false;
+        }
+      })();
+      console.error(
+        usingUrl
+          ? 'Failed to connect to database. Check DATABASE_URL.'
+          : `Failed to connect to database. Check DB_HOST/DB_PORT/DB_NAME (${host}:${port}/${dbName}).`
+      );
       console.log('Attempting to start server anyway...');
     } else {
-      // Initialize database tables
-      await initDatabase();
+      await bootstrapDatabase();
     }
 
     app.listen(PORT, () => {
